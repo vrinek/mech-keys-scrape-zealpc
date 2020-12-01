@@ -1,5 +1,6 @@
 (ns mech-keys-scrape.core
-  (:require [etaoin.api :refer :all])
+  (:require [etaoin.api :refer :all]
+            [cheshire.core :refer :all])
   (:gen-class))
 
 (defn hover-over
@@ -35,10 +36,11 @@
   "Visits the page of a product and prints its details"
   [driver product-link]
   (click-el driver product-link)
-  (println (get-current-product-name driver))
-  (println (get-current-price driver))
-  (println (get-url driver))
-  (println (.toString (java.util.Date.))))
+  (let [product-map {:name (get-current-product-name driver)
+                     :price (get-current-price driver)
+                     :url (get-url driver)
+                     :last-updated (.toString (java.util.Date.))}]
+    (println (generate-string product-map {:pretty true}))))
 
 (defn filter-unvisited-links
   [driver visited-href links]
