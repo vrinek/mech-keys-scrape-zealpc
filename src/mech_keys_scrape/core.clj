@@ -3,6 +3,8 @@
             [cheshire.core :refer :all])
   (:gen-class))
 
+(def output-file "zeal-products.json")
+
 (defn hover-over
   "Hovers the mouse cursor over an element"
   [driver q]
@@ -39,8 +41,9 @@
   (let [product-map {:name (get-current-product-name driver)
                      :price (get-current-price driver)
                      :url (get-url driver)
-                     :last-updated (.toString (java.util.Date.))}]
-    (println (generate-string product-map {:pretty true}))))
+                     :last-updated (java.util.Date.)}]
+    (println product-map)
+    product-map))
 
 (defn filter-unvisited-links
   [driver visited-href links]
@@ -52,8 +55,9 @@
   (let [all-links (get-product-links driver)
         unvisited-links (filter-unvisited-links driver visited-href all-links)]
     (if-let [target-link (first unvisited-links)]
-      (let [target-href (link->href driver target-link)]
-        (visit-product driver target-link)
+      (let [target-href (link->href driver target-link)
+            product-map (visit-product driver target-link)]
+        (spit output-file (str (generate-string product-map) "\n") :append true)
         (recur driver (conj visited-href target-href))))))
 
 (defn -main
