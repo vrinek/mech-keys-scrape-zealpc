@@ -1,8 +1,6 @@
 (ns mech-keys-scrape.core
+  (:require [etaoin.api :refer :all])
   (:gen-class))
-
-(use 'etaoin.api)
-(require '[etaoin.keys :as k])
 
 (defn hover-over
   "Hovers the mouse cursor over an element"
