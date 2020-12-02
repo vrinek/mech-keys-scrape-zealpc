@@ -51,19 +51,21 @@
 
 (defn visit-all-products
   "Recursively visits all products"
-  [driver visited-href]
+  ([driver]
+   (visit-all-products driver (hash-set)))
+  ([driver visited-href]
   (let [all-links (get-product-links driver)
         unvisited-links (filter-unvisited-links driver visited-href all-links)]
     (if-let [target-link (first unvisited-links)]
       (let [target-href (link->href driver target-link)
             product-map (visit-product driver target-link)]
         (spit output-file (str (generate-string product-map) "\n") :append true)
-        (recur driver (conj visited-href target-href))))))
+        (recur driver (conj visited-href target-href)))))))
 
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
   (let [driver (firefox)]
     (go driver "https://zealpc.net/")
-    (visit-all-products driver (hash-set))
+    (visit-all-products driver)
     (quit driver)))
