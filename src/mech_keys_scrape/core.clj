@@ -34,6 +34,30 @@
   [driver link]
   (get-element-attr-el driver link :href))
 
+(defn visible-el?
+  "Checks whether an element is visible on the page"
+  [driver el unique-attr]
+  (visible? driver {unique-attr (get-element-attr-el driver el unique-attr)}))
+
+(defn get-variant-labels
+  "Return a list <label> elements for all variants on the product page"
+  [driver]
+  (filter
+   #(visible-el? driver % :for)
+   (query-all driver {:css ".swatch_options label"})))
+
+(defn visit-all-variants
+  "Visits each variant of the current product"
+  [driver visited-variants]
+  (let [all-variants (get-variant-labels driver)
+        unvisited-variants (filter #(not (visited-variants %)) all-variants)]
+    (if-let [target-variant (first unvisited-variants)]
+      (do
+        (click-el driver target-variant)
+        (println (get-element-text-el driver target-variant))
+        (println (get-element-text driver {:css ".modal_price"}))
+        (recur driver (conj visited-variants target-variant))))))
+
 (defn visit-product
   "Visits the page of a product and prints its details"
   [driver product-link]
@@ -43,6 +67,7 @@
                      :url (get-url driver)
                      :last-updated (java.util.Date.)}]
     (println product-map)
+    (visit-all-variants driver (hash-set))
     product-map))
 
 (defn filter-unvisited-links
