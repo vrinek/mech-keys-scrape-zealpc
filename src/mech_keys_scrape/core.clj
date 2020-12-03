@@ -96,7 +96,7 @@
 (defn -main
   "I don't do a whole lot ... yet."
   [& args]
-  (let [driver (firefox)]
+  (let [driver (firefox-headless)]
     (go driver "https://zealpc.net/")
     (visit-all-products driver (partial append-map-as-json output-file))
     (quit driver)))
