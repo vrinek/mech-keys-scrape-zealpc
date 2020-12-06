@@ -1,6 +1,9 @@
 (ns mech-keys-scrape.core
-  (:require [etaoin.api :refer :all]
-            [cheshire.core :refer :all])
+  (:require [etaoin.api :refer [query make-mouse-input add-pointer-move-to-el
+                                perform-actions query-all get-element-attr-el
+                                get-element-text visible? click-el get-url
+                                get-element-text-el firefox-headless go quit]]
+            [cheshire.core :refer [generate-string]])
   (:gen-class))
 
 (def output-file "zeal-products.json")
@@ -84,8 +87,8 @@
   (let [all-links (get-product-links driver)
         unvisited-links (filter-unvisited-links driver visited-href all-links)]
     (if-let [target-link (first unvisited-links)]
-      (let [target-href (link->href driver target-link)
-            product-map (visit-product driver target-link fn)]
+      (let [target-href (link->href driver target-link)]
+        (visit-product driver target-link fn)
         (recur driver fn (conj visited-href target-href)))))))
 
 (defn append-map-as-json
@@ -95,7 +98,7 @@
 
 (defn -main
   "I don't do a whole lot ... yet."
-  [& args]
+  [& _args]
   (let [driver (firefox-headless)]
     (go driver "https://zealpc.net/")
     (visit-all-products driver (partial append-map-as-json output-file))
